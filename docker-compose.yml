@@ -1,0 +1,40 @@
+services:
+  api:
+    build: { context: ., target: development }
+    ports: ['3000:3000']
+    env_file: .env
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+      - /app/node_modules
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_DATABASE: db_rhesa_utomo_betest
+    ports: ['27017:27017']
+    volumes: [mongo_data:/data/db]
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_rhesa_utomo_betest
+    ports: ['6379:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      retries: 5
+
+volumes:
+  mongo_data:
