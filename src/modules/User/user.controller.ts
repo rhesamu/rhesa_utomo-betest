@@ -1,7 +1,14 @@
 import { z } from 'zod';
 import { NextFunction, Request, Response } from 'express';
 import { UserService } from './user.service';
-import { CreateUserDto, ListUserQueryDto, UpdateUserDto, userIdParamSchema, accountNumberParamSchema, registrationNumberParamSchema } from './user.dto';
+import {
+  CreateUserDto,
+  ListUserQueryDto,
+  UpdateUserDto,
+  userIdParamSchema,
+  accountNumberParamSchema,
+  registrationNumberParamSchema,
+} from './user.dto';
 
 type UserIdParams = z.infer<typeof userIdParamSchema>;
 type AccountNumberParams = z.infer<typeof accountNumberParamSchema>;
@@ -20,7 +27,11 @@ export class UserController {
     }
   };
 
-  getByUserId = async (req: Request<UserIdParams>, res: Response, next: NextFunction): Promise<void> => {
+  getByUserId = async (
+    req: Request<UserIdParams>,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const user = await this.userService.getByUserId(req.params.userId);
       res.status(200).json(user);
@@ -29,7 +40,11 @@ export class UserController {
     }
   };
 
-  getByAccountNumber = async (req: Request<AccountNumberParams>, res: Response, next: NextFunction): Promise<void> => {
+  getByAccountNumber = async (
+    req: Request<AccountNumberParams>,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const user = await this.userService.getByAccountNumber(req.params.accountNumber);
       res.status(200).json(user);
@@ -44,9 +59,7 @@ export class UserController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const user = await this.userService.getByRegistrationNumber(
-        req.params.registrationNumber,
-      );
+      const user = await this.userService.getByRegistrationNumber(req.params.registrationNumber);
       res.status(200).json(user);
     } catch (err) {
       next(err);
@@ -64,10 +77,7 @@ export class UserController {
 
   update = async (req: Request<UserIdParams>, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = await this.userService.update(
-        req.params.userId,
-        req.body as UpdateUserDto,
-      );
+      const user = await this.userService.update(req.params.userId, req.body as UpdateUserDto);
       res.status(200).json(user);
     } catch (err) {
       next(err);

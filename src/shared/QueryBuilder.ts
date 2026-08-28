@@ -2,7 +2,7 @@ import { QueryFilter } from 'mongoose';
 
 export interface FilterFieldConfig {
   field: string;
-  mode: 'exact' | 'text'
+  mode: 'exact' | 'text';
 }
 
 export interface ParsedListQuery<TDocument> {
@@ -55,6 +55,6 @@ export function parseListQuery<TDocument>(
     sort,
     skip,
     limit,
-    page
-  }
+    page,
+  };
 }

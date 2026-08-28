@@ -1,5 +1,5 @@
-import { Router, Response } from "express";
-import { ReadinessCheck } from "./IHealthCheckRepository";
+import { Router, Response } from 'express';
+import { ReadinessCheck } from './IHealthCheckRepository';
 
 export function healthCheckRouter(readinessChecks: ReadinessCheck[]): Router {
   const router = Router();

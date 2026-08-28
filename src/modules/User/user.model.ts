@@ -15,9 +15,10 @@ export interface UserDocument extends Document {
   updatedAt: Date;
 }
 
-const userSchema = new Schema<UserDocument>({
-  userId: { type: String, required: true, unique: true, trim: true },
-  fullName: { type: String, required: true, trim: true },
+const userSchema = new Schema<UserDocument>(
+  {
+    userId: { type: String, required: true, unique: true, trim: true },
+    fullName: { type: String, required: true, trim: true },
     accountNumber: { type: String, required: true, unique: true, trim: true },
     emailAddress: {
       type: String,

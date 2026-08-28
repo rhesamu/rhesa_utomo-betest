@@ -1,10 +1,5 @@
 import { Paginated } from '../../shared/Paginated';
-import {
-  IUserRepository,
-  CreateUserInput,
-  UpdateUserInput,
-  UserQuery
-} from './IUserRepository';
+import { IUserRepository, CreateUserInput, UpdateUserInput, UserQuery } from './IUserRepository';
 import { UserDocument } from './user.model';
 
 export class UserService {

@@ -1,10 +1,10 @@
-import { Document, QueryFilter, Model, UpdateQuery } from "mongoose";
-import { NotFoundError } from "../core/errors/AppError";
+import { Document, QueryFilter, Model, UpdateQuery } from 'mongoose';
+import { NotFoundError } from '../core/errors/AppError';
 import { FilterFieldConfig, parseListQuery } from './QueryBuilder';
 import { Paginated } from './Paginated';
 
 export abstract class BaseRepository<TDocument extends Document> {
-  protected constructor (
+  protected constructor(
     protected readonly model: Model<TDocument>,
     private readonly idField: string = '_id',
   ) {}

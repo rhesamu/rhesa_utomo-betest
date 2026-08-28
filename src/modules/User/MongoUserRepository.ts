@@ -1,10 +1,10 @@
-import { NotFoundError } from "../../core/errors/AppError";
-import { BaseRepository } from "../../shared/BaseRepository";
-import { toRepositoryError } from "../../shared/mongoErrors";
-import { Paginated } from "../../shared/Paginated";
-import { FilterFieldConfig } from "../../shared/QueryBuilder";
-import { UserDocument, UserModel } from "./user.model";
-import { CreateUserInput, IUserRepository, UpdateUserInput, UserQuery } from "./IUserRepository";
+import { NotFoundError } from '../../core/errors/AppError';
+import { BaseRepository } from '../../shared/BaseRepository';
+import { toRepositoryError } from '../../shared/mongoErrors';
+import { Paginated } from '../../shared/Paginated';
+import { FilterFieldConfig } from '../../shared/QueryBuilder';
+import { UserDocument, UserModel } from './user.model';
+import { CreateUserInput, IUserRepository, UpdateUserInput, UserQuery } from './IUserRepository';
 
 const FILTER_FIELDS: FilterFieldConfig[] = [
   { field: 'fullName', mode: 'text' },
@@ -15,20 +15,13 @@ const FILTER_FIELDS: FilterFieldConfig[] = [
 
 const SORT_FIELDS = ['fullName', 'accountNumber', 'registrationNumber', 'role', 'createdAt'];
 
-export class MongoUserRepository
-  extends BaseRepository<UserDocument>
-  implements IUserRepository
-{
+export class MongoUserRepository extends BaseRepository<UserDocument> implements IUserRepository {
   constructor() {
     super(UserModel, 'userId');
   }
 
   findAll(query: UserQuery): Promise<Paginated<UserDocument>> {
-    return this.findMany(
-      query as Record<string, unknown>,
-      FILTER_FIELDS,
-      SORT_FIELDS
-    );
+    return this.findMany(query as Record<string, unknown>, FILTER_FIELDS, SORT_FIELDS);
   }
 
   findById(userId: string): Promise<UserDocument> {
