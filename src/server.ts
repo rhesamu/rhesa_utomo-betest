@@ -5,6 +5,9 @@ import { env, buildMongoUri } from './config/env';
 import { ReadinessCheck } from './modules/healthCheck/IHealthCheckRepository';
 import { createApp } from './app';
 
+import { MongoUserRepository } from './modules/User/MongoUserRepository';
+import { UserService } from './modules/User/user.service';
+
 const logger = pino({
   level: env.LOG_LEVEL,
   transport: env.NODE_ENV === 'development' ? { target: 'pino-pretty' } : undefined,
@@ -55,7 +58,9 @@ async function bootstrap(): Promise<void> {
   const redisCheck = buildRedisReadinessCheck();
   if (redisCheck) readinessChecks.push(redisCheck);
 
-  const app = createApp({ logger, readinessChecks });
+  const userService = new UserService(new MongoUserRepository());
+
+  const app = createApp({ logger, readinessChecks, userService });
   const port = env.PORT;
 
   const server = app.listen(port, '0.0.0.0', () => {

@@ -10,10 +10,13 @@ import { ReadinessCheck } from './modules/healthCheck/IHealthCheckRepository';
 
 import { notFound } from './middlewares/notFound';
 import { errorHandler } from './middlewares/errorHandler';
+import { UserService } from './modules/User/user.service';
+import { userRouter } from './modules/User/user.routes';
 
 export interface AppDeps {
   logger: Logger;
   readinessChecks?: ReadinessCheck[];
+  userService: UserService;
 }
 
 export function createApp(deps: AppDeps): Express {
@@ -34,7 +37,7 @@ export function createApp(deps: AppDeps): Express {
   );
 
   app.use('/health', healthCheckRouter(readinessChecks));
-  // app.use('/api/users', usersRouter);
+  app.use('/api/users', userRouter(deps.userService));
   // app.use('/api/accounts', accountLoginRouter);
 
   app.use(notFound);
