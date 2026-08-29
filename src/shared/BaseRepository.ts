@@ -43,7 +43,7 @@ export abstract class BaseRepository<TDocument extends Document> {
 
   protected async updateOneById(id: string, data: UpdateQuery<TDocument>): Promise<TDocument> {
     const document = await this.model
-      .findOneAndUpdate(this.idFilter(id), data, { new: true, runvalidators: true })
+      .findOneAndUpdate(this.idFilter(id), data, { new: true, runValidators: true })
       .exec();
 
     if (!document) {

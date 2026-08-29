@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { SignOptions } from 'jsonwebtoken';
 import Redis from 'ioredis';
 import pino from 'pino';
 import { env, buildMongoUri } from './config/env';
@@ -7,6 +8,11 @@ import { createApp } from './app';
 
 import { MongoUserRepository } from './modules/User/MongoUserRepository';
 import { UserService } from './modules/User/user.service';
+import { MongoAccountRepository } from './modules/Account/MongoAccountRepository';
+import { AccountService } from './modules/Account/account.service';
+import { BcryptHasher } from './infra/hash/BcryptHasher';
+import { JwtService } from './infra/jwt/JwtService';
+import { AuthService } from './modules/Auth/auth.service';
 
 const logger = pino({
   level: env.LOG_LEVEL,
@@ -58,9 +64,31 @@ async function bootstrap(): Promise<void> {
   const redisCheck = buildRedisReadinessCheck();
   if (redisCheck) readinessChecks.push(redisCheck);
 
-  const userService = new UserService(new MongoUserRepository());
+  const userRepository = new MongoUserRepository();
+  const accountRepository = new MongoAccountRepository();
+  const passwordHasher = new BcryptHasher();
+  const tokenService = new JwtService(
+    env.JWT_SECRET,
+    env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
+  );
 
-  const app = createApp({ logger, readinessChecks, userService });
+  const userService = new UserService(userRepository);
+  const accountService = new AccountService(accountRepository, passwordHasher);
+  const authService = new AuthService(
+    accountRepository,
+    userRepository,
+    passwordHasher,
+    tokenService,
+  );
+
+  const app = createApp({
+    logger,
+    readinessChecks,
+    userService,
+    accountService,
+    authService,
+    tokenService,
+  });
   const port = env.PORT;
 
   const server = app.listen(port, '0.0.0.0', () => {

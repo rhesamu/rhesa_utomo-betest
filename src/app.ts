@@ -12,11 +12,19 @@ import { notFound } from './middlewares/notFound';
 import { errorHandler } from './middlewares/errorHandler';
 import { UserService } from './modules/User/user.service';
 import { userRouter } from './modules/User/user.routes';
+import { AccountService } from './modules/Account/account.service';
+import { accountRouter } from './modules/Account/account.routes';
+import { AuthService } from './modules/Auth/auth.service';
+import { authRouter } from './modules/Auth/auth.routes';
+import { ITokenService } from './infra/jwt/ITokenService';
 
 export interface AppDeps {
   logger: Logger;
   readinessChecks?: ReadinessCheck[];
   userService: UserService;
+  accountService: AccountService;
+  authService: AuthService;
+  tokenService: ITokenService;
 }
 
 export function createApp(deps: AppDeps): Express {
@@ -37,8 +45,9 @@ export function createApp(deps: AppDeps): Express {
   );
 
   app.use('/health', healthCheckRouter(readinessChecks));
-  app.use('/api/users', userRouter(deps.userService));
-  // app.use('/api/accounts', accountLoginRouter);
+  app.use('/api/auth', authRouter(deps.authService, deps.tokenService));
+  app.use('/api/users', userRouter(deps.userService, deps.tokenService));
+  app.use('/api/accounts', accountRouter(deps.accountService, deps.tokenService));
 
   app.use(notFound);
   app.use(errorHandler);
