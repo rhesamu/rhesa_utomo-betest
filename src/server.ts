@@ -13,6 +13,10 @@ import { AccountService } from './modules/Account/account.service';
 import { BcryptHasher } from './infra/hash/BcryptHasher';
 import { JwtService } from './infra/jwt/JwtService';
 import { AuthService } from './modules/Auth/auth.service';
+import { ICache } from './infra/cache/ICache';
+import { RedisCache } from './infra/cache/RedisCache';
+import { NoopCache } from './infra/cache/NoopCache';
+import { CachedUserRepository } from './modules/User/CachedUserRepository';
 
 const logger = pino({
   level: env.LOG_LEVEL,
@@ -23,10 +27,10 @@ async function connectMongo(): Promise<void> {
   await mongoose.connect(buildMongoUri(), {
     autoIndex: env.NODE_ENV !== 'production',
   });
-  logger.info('Mongo connected');
+  logger.info('Database connected');
 }
 
-function buildRedisReadinessCheck(): ReadinessCheck | undefined {
+function buildRedisClient(): Redis | undefined {
   if (!env.REDIS_URL) return undefined;
 
   // *.railway.internal resolves IPv6-only; every other host
@@ -40,7 +44,10 @@ function buildRedisReadinessCheck(): ReadinessCheck | undefined {
     lazyConnect: true,
   });
   redis.on('error', (err) => logger.warn({ err }, 'Redis connection error'));
+  return redis;
+}
 
+function buildRedisReadinessCheck(redis: Redis): ReadinessCheck {
   return {
     name: 'redis',
     check: async () => {
@@ -61,10 +68,22 @@ async function bootstrap(): Promise<void> {
   const readinessChecks: ReadinessCheck[] = [
     { name: 'mongo', check: async () => mongoose.connection.readyState === 1 },
   ];
-  const redisCheck = buildRedisReadinessCheck();
-  if (redisCheck) readinessChecks.push(redisCheck);
 
-  const userRepository = new MongoUserRepository();
+  // Cached User Repository setup if Redis is available, else fall back to a NoopCache.
+  const redis = buildRedisClient();
+  if (redis) readinessChecks.push(buildRedisReadinessCheck(redis));
+
+  const cache: ICache = redis
+    ? new RedisCache(redis, logger, env.CACHE_TTL_SECONDS)
+    : new NoopCache();
+  logger.info(`Cache backend: ${redis ? 'redis' : 'noop (REDIS_URL unset)'}`);
+
+  const userRepository = new CachedUserRepository(
+    new MongoUserRepository(),
+    cache,
+    env.CACHE_TTL_SECONDS,
+  );
+
   const accountRepository = new MongoAccountRepository();
   const passwordHasher = new BcryptHasher();
   const tokenService = new JwtService(
@@ -99,6 +118,7 @@ async function bootstrap(): Promise<void> {
     logger.info(`${signal} received, shutting down gracefully`);
     server.close(async () => {
       await mongoose.disconnect();
+      if (redis) await redis.quit();
       logger.info('Shutdown complete');
       process.exit(0);
     });

@@ -10,6 +10,7 @@ import { ReadinessCheck } from './modules/healthCheck/IHealthCheckRepository';
 
 import { notFound } from './middlewares/notFound';
 import { errorHandler } from './middlewares/errorHandler';
+import { cacheHeader } from './middlewares/cacheHeader';
 import { UserService } from './modules/User/user.service';
 import { userRouter } from './modules/User/user.routes';
 import { AccountService } from './modules/Account/account.service';
@@ -43,6 +44,9 @@ export function createApp(deps: AppDeps): Express {
       legacyHeaders: false,
     }),
   );
+
+  // Must precede the routers so cache-backed reads run inside its ALS scope.
+  app.use(cacheHeader());
 
   app.use('/health', healthCheckRouter(readinessChecks));
   app.use('/api/auth', authRouter(deps.authService, deps.tokenService));
