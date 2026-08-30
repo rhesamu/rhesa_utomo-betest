@@ -10,5 +10,5 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
   }
 
   req.log?.error({ err }, 'Unhandled error');
-  res.status(500).json({ error: 'InternalServerError', message: 'Something unexpected happpened' });
+  res.status(500).json({ error: 'InternalServerError', message: 'Something unexpected happened' });
 }

@@ -9,7 +9,7 @@ import { loginSchema } from './auth.dto';
 
 const loginRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: 30,
   standardHeaders: true,
   legacyHeaders: false,
 });

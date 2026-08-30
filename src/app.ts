@@ -32,6 +32,9 @@ export function createApp(deps: AppDeps): Express {
   const { logger, readinessChecks = [] } = deps;
   const app = express();
 
+  // Trust the single edge-proxy hop, so the rate limiters below key on the real client IP.
+  app.set('trust proxy', 1);
+
   app.use(helmet());
   app.use(cors());
   app.use(express.json());

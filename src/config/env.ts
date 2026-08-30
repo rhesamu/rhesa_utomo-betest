@@ -37,6 +37,14 @@ function loadEnv(): Env {
 export const env = loadEnv();
 
 export function buildMongoUri(base: Env = env): string {
-  const trimmed = base.MONGO_URL.replace(/\/$/, '');
-  return `${trimmed}/${base.MONGO_DB_NAME}?authSource=admin`;
+  const [beforeQuery, query = ''] = base.MONGO_URL.split('?');
+
+  const schemeEnd = beforeQuery.indexOf('://') + 3;
+  const authorityEnd = beforeQuery.indexOf('/', schemeEnd);
+  const authority = authorityEnd === -1 ? beforeQuery : beforeQuery.slice(0, authorityEnd);
+
+  const params = new URLSearchParams(query);
+  if (!params.has('authSource')) params.set('authSource', 'admin');
+
+  return `${authority}/${base.MONGO_DB_NAME}?${params.toString()}`;
 }

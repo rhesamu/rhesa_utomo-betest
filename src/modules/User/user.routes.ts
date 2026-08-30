@@ -5,8 +5,10 @@ import { validate } from '../../middlewares/validate';
 import { authenticate, authorize } from '../../middlewares/authenticate';
 import { ITokenService } from '../../infra/jwt/ITokenService';
 import {
+  accountNumberParamSchema,
   createUserSchema,
   listUserQuerySchema,
+  registrationNumberParamSchema,
   updateUserSchema,
   userIdParamSchema,
 } from './user.dto';
@@ -18,8 +20,16 @@ export function userRouter(userService: UserService, tokenService: ITokenService
   router.use(authenticate(tokenService));
 
   router.get('/', validate({ query: listUserQuerySchema }), controller.list);
-  router.get('/by-account/:accountNumber', controller.getByAccountNumber);
-  router.get('/by-registration/:registrationNumber', controller.getByRegistrationNumber);
+  router.get(
+    '/by-account/:accountNumber',
+    validate({ params: accountNumberParamSchema }),
+    controller.getByAccountNumber,
+  );
+  router.get(
+    '/by-registration/:registrationNumber',
+    validate({ params: registrationNumberParamSchema }),
+    controller.getByRegistrationNumber,
+  );
   router.get('/:userId', validate({ params: userIdParamSchema }), controller.getByUserId);
   router.post('/', validate({ body: createUserSchema }), controller.create);
   router.put(
