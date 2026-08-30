@@ -10,7 +10,7 @@ Node.js + TypeScript · Express 5 · Mongoose/MongoDB · Redis · JWT · Docker
 
 | | |
 |---|---|
-| Base URL | `https://<your-app>.up.railway.app` |
+| Base URL | `https://rhesautomo-betest-production.up.railway.app` |
 | Health | `GET /health` → `{"status":"ok"}` |
 | Readiness | `GET /health/readiness` → per-dependency status (`503` if any is down) |
 
@@ -22,7 +22,7 @@ Node.js + TypeScript · Express 5 · Mongoose/MongoDB · Redis · JWT · Docker
 | `putri_maharani` | user | non-admin, useful for checking the `403` path |
 
 ```bash
-curl -s -X POST https://<your-app>.up.railway.app/api/auth/login \
+curl -s -X POST https://rhesautomo-betest-production.up.railway.app/api/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"userName":"super_admin","password":"Password123!"}'
 ```
@@ -103,19 +103,8 @@ Database name: `db_rhesa_utomo_betest`
 | `accounts` | `userId` | unique | Enforces the 1:1 relationship with `users` |
 | `accounts` | `{ lastLoginDateTime: -1 }` | single | Backs `GET /api/accounts/stale` |
 
-Definitions live in [`src/modules/User/user.model.ts`](src/modules/User/user.model.ts) and
+Definitions are in [`src/modules/User/user.model.ts`](src/modules/User/user.model.ts) and
 [`src/modules/Account/account.model.ts`](src/modules/Account/account.model.ts).
-
-> **Applying them in production.** Mongoose `autoIndex` is deliberately disabled when
-> `NODE_ENV=production` — building indexes on boot is a foot-gun on a live database. Run the sync
-> script once against the production database instead:
->
-> ```bash
-> MONGO_URL='<production connection string>' MONGO_DB_NAME=db_rhesa_utomo_betest npm run db:indexes
-> ```
->
-> It calls `syncIndexes()` on both models and prints the resulting index names. Without this step
-> the unique constraints do not exist and duplicate records insert cleanly.
 
 ---
 
