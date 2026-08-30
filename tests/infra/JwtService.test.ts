@@ -58,7 +58,6 @@ describe('JwtService', () => {
   });
 
   it('uses one indistinguishable message for expired vs bad-signature', () => {
-    // Distinguishing them would leak information about the signing setup.
     const expired = jwt.sign(payload, SECRET, { expiresIn: '-1s' });
     const foreign = jwt.sign(payload, OTHER_SECRET, { expiresIn: '1h' });
 

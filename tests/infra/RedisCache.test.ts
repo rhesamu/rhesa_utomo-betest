@@ -55,8 +55,6 @@ describe('RedisCache', () => {
     });
   });
 
-  // The property the whole design depends on: a broken Redis degrades
-  // latency, it never turns a working endpoint into a 500.
   describe('fail-open', () => {
     it('returns null instead of throwing when get fails', async () => {
       const { redis, logger, cache } = build();

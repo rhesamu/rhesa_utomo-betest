@@ -12,7 +12,6 @@ export interface UserQuery {
 }
 
 export interface CreateUserInput {
-  userId: string;
   fullName: string;
   accountNumber: string;
   emailAddress: string;
@@ -20,7 +19,7 @@ export interface CreateUserInput {
   role: Role;
 }
 
-export type UpdateUserInput = Partial<Omit<CreateUserInput, 'userId'>>;
+export type UpdateUserInput = Partial<CreateUserInput>;
 
 export interface IUserRepository {
   findAll(query: UserQuery): Promise<Paginated<UserDocument>>;

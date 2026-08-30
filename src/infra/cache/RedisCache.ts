@@ -2,11 +2,6 @@ import Redis from 'ioredis';
 import { Logger } from 'pino';
 import { ICache } from './ICache';
 
-/**
- * Fail-open cache: every Redis error is swallowed and logged at warn level.
- * A reachable-but-broken Redis degrades read latency, it never turns a working
- * endpoint into a 500 — reads fall through to Mongo and writes still commit.
- */
 export class RedisCache implements ICache {
   constructor(
     private readonly redis: Redis,

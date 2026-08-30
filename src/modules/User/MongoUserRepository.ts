@@ -17,7 +17,7 @@ const SORT_FIELDS = ['fullName', 'accountNumber', 'registrationNumber', 'role', 
 
 export class MongoUserRepository extends BaseRepository<UserDocument> implements IUserRepository {
   constructor() {
-    super(UserModel, 'userId');
+    super(UserModel);
   }
 
   findAll(query: UserQuery): Promise<Paginated<UserDocument>> {

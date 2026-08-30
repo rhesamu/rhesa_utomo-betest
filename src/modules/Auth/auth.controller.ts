@@ -14,7 +14,6 @@ export class AuthController {
     }
   };
 
-  // To confirm a token is valid.
   me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       res.status(200).json({ account: req.auth });

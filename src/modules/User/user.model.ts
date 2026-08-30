@@ -17,7 +17,6 @@ export interface UserDocument extends Document {
 
 const userSchema = new Schema<UserDocument>(
   {
-    userId: { type: String, required: true, unique: true, trim: true },
     fullName: { type: String, required: true, trim: true },
     accountNumber: { type: String, required: true, unique: true, trim: true },
     emailAddress: {
@@ -31,10 +30,24 @@ const userSchema = new Schema<UserDocument>(
     registrationNumber: { type: String, required: true, unique: true, trim: true },
     role: { type: String, required: true, enum: ['admin', 'user'] },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_doc, ret: Record<string, unknown>) => {
+        delete ret._id;
+        delete ret.__v;
+        delete ret.id;
+        return ret;
+      },
+    },
+  },
 );
 
-// Index role and fullName
+userSchema.virtual('userId').get(function (this: { _id: unknown }) {
+  return String(this._id);
+});
+
 userSchema.index({ role: 1, fullName: 1 });
 
 export const UserModel = model<UserDocument>('User', userSchema);

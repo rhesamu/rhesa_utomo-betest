@@ -1,18 +1,18 @@
 import { z } from 'zod';
+import { objectIdSchema } from '../../shared/objectId';
 
 export const createAccountSchema = z.object({
-  accountId: z.string().min(1),
   userName: z.string().min(3),
   password: z.string().min(8),
-  userId: z.string().min(1),
+  userId: objectIdSchema,
   lastLoginDateTime: z.coerce.date().optional(),
 });
 
-export const updateAccountSchema = createAccountSchema.omit({ accountId: true }).partial();
+export const updateAccountSchema = createAccountSchema.partial();
 
 export const listAccountQuerySchema = z.object({
   userName: z.string().min(1).optional(),
-  userId: z.string().min(1).optional(),
+  userId: objectIdSchema.optional(),
   sort: z.string().optional(),
   page: z.coerce.number().int().positive().optional(),
   limit: z.coerce.number().int().positive().max(100).optional(),
@@ -26,7 +26,7 @@ export const staleAccountQuerySchema = z.object({
 });
 
 export const accountIdParamSchema = z.object({
-  accountId: z.string().min(1),
+  accountId: objectIdSchema,
 });
 
 export type CreateAccountDto = z.infer<typeof createAccountSchema>;

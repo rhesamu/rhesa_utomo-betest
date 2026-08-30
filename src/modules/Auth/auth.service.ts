@@ -26,13 +26,14 @@ export class AuthService {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    const role = await this.resolveRole(account.userId);
+    const userId = String(account.userId);
+    const role = await this.resolveRole(userId);
 
     await this.accountRepository.recordLogin(account.accountId, new Date());
 
     const payload: TokenPayload = {
       accountId: account.accountId,
-      userId: account.userId,
+      userId,
       userName: account.userName,
       role,
     };

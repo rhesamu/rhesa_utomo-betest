@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { NotFoundError } from '../../core/errors/AppError';
 import { BaseRepository } from '../../shared/BaseRepository';
 import { toRepositoryError } from '../../shared/mongoErrors';
@@ -17,7 +18,7 @@ const FILTER_FIELDS: FilterFieldConfig[] = [
   { field: 'userId', mode: 'exact' },
 ];
 
-const SORT_FIELDS = ['userName', 'accountId', 'lastLoginDateTime', 'createdAt'];
+const SORT_FIELDS = ['userName', 'lastLoginDateTime', 'createdAt'];
 const STALE_SORT_FIELDS = ['lastLoginDateTime', 'userName', 'createdAt'];
 
 const DEFAULT_STALE_DAYS = 3;
@@ -28,7 +29,7 @@ export class MongoAccountRepository
   implements IAccountRepository
 {
   constructor() {
-    super(AccountModel, 'accountId');
+    super(AccountModel);
   }
 
   findAll(query: AccountQuery): Promise<Paginated<AccountDocument>> {
@@ -69,7 +70,7 @@ export class MongoAccountRepository
 
   async create(input: CreateAccountInput): Promise<AccountDocument> {
     try {
-      return await this.createDocument(input);
+      return await this.createDocument(this.withObjectIdUserId(input));
     } catch (err) {
       throw toRepositoryError(err);
     }
@@ -77,10 +78,19 @@ export class MongoAccountRepository
 
   async update(accountId: string, input: UpdateAccountInput): Promise<AccountDocument> {
     try {
-      return await this.updateOneById(accountId, input);
+      return await this.updateOneById(accountId, this.withObjectIdUserId(input));
     } catch (err) {
       throw toRepositoryError(err);
     }
+  }
+
+  private withObjectIdUserId<T extends { userId?: string }>(
+    input: T,
+  ): Omit<T, 'userId'> & { userId?: Types.ObjectId } {
+    const { userId, ...rest } = input;
+    return userId === undefined
+      ? (rest as Omit<T, 'userId'>)
+      : { ...(rest as Omit<T, 'userId'>), userId: new Types.ObjectId(userId) };
   }
 
   delete(accountId: string): Promise<void> {

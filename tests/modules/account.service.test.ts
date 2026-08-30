@@ -3,6 +3,7 @@ import { AccountService } from '../../src/modules/Account/account.service';
 import { IAccountRepository } from '../../src/modules/Account/IAccountRepository';
 import { IPasswordHasher } from '../../src/infra/hash/IPasswordHasher';
 import { AccountDocument } from '../../src/modules/Account/account.model';
+import { ACCOUNT_ID, USER_ID } from '../helpers/ids';
 
 const HASHED = '$2b$10$hashedvalue';
 
@@ -21,10 +22,9 @@ describe('AccountService', () => {
       const { repository, hasher, service } = build();
 
       await service.create({
-        accountId: 'ACC-1',
         userName: 'alice',
         password: 'plaintext123',
-        userId: 'USR-1',
+        userId: USER_ID,
       });
 
       expect(hasher.hash).toHaveBeenCalledWith('plaintext123');
@@ -35,10 +35,9 @@ describe('AccountService', () => {
       const { repository, service } = build();
 
       await service.create({
-        accountId: 'ACC-1',
         userName: 'alice',
         password: 'plaintext123',
-        userId: 'USR-1',
+        userId: USER_ID,
       });
 
       const persisted = repository.create.mock.calls[0][0];
@@ -47,24 +46,22 @@ describe('AccountService', () => {
   });
 
   describe('update', () => {
-    // Hashing lives in the service precisely because a Mongoose pre-save hook
-    // would not fire on findOneAndUpdate, silently storing plaintext.
     it('hashes a supplied password', async () => {
       const { repository, hasher, service } = build();
 
-      await service.update('ACC-1', { password: 'newpassword1' });
+      await service.update(ACCOUNT_ID, { password: 'newpassword1' });
 
       expect(hasher.hash).toHaveBeenCalledWith('newpassword1');
-      expect(repository.update).toHaveBeenCalledWith('ACC-1', { password: HASHED });
+      expect(repository.update).toHaveBeenCalledWith(ACCOUNT_ID, { password: HASHED });
     });
 
     it('does not invoke the hasher when no password is supplied', async () => {
       const { repository, hasher, service } = build();
 
-      await service.update('ACC-1', { userName: 'bob' });
+      await service.update(ACCOUNT_ID, { userName: 'bob' });
 
       expect(hasher.hash).not.toHaveBeenCalled();
-      expect(repository.update).toHaveBeenCalledWith('ACC-1', { userName: 'bob' });
+      expect(repository.update).toHaveBeenCalledWith(ACCOUNT_ID, { userName: 'bob' });
     });
   });
 
@@ -91,17 +88,17 @@ describe('AccountService', () => {
       const { repository, service } = build();
       repository.findById.mockResolvedValue({} as AccountDocument);
 
-      await service.getByAccountId('ACC-1');
+      await service.getByAccountId(ACCOUNT_ID);
 
-      expect(repository.findById).toHaveBeenCalledWith('ACC-1');
+      expect(repository.findById).toHaveBeenCalledWith(ACCOUNT_ID);
     });
 
     it('forwards deletes', async () => {
       const { repository, service } = build();
 
-      await service.delete('ACC-1');
+      await service.delete(ACCOUNT_ID);
 
-      expect(repository.delete).toHaveBeenCalledWith('ACC-1');
+      expect(repository.delete).toHaveBeenCalledWith(ACCOUNT_ID);
     });
 
     it('propagates repository errors rather than swallowing them', async () => {
@@ -116,18 +113,18 @@ describe('AccountService', () => {
       repository.recordLogin.mockResolvedValue({} as AccountDocument);
       const at = new Date('2026-01-01T00:00:00Z');
 
-      await service.recordLogin('ACC-1', at);
+      await service.recordLogin(ACCOUNT_ID, at);
 
-      expect(repository.recordLogin).toHaveBeenCalledWith('ACC-1', at);
+      expect(repository.recordLogin).toHaveBeenCalledWith(ACCOUNT_ID, at);
     });
 
     it('defaults recordLogin to the current time', async () => {
       const { repository, service } = build();
       repository.recordLogin.mockResolvedValue({} as AccountDocument);
 
-      await service.recordLogin('ACC-1');
+      await service.recordLogin(ACCOUNT_ID);
 
-      expect(repository.recordLogin).toHaveBeenCalledWith('ACC-1', expect.any(Date));
+      expect(repository.recordLogin).toHaveBeenCalledWith(ACCOUNT_ID, expect.any(Date));
     });
   });
 });

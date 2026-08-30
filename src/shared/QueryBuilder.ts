@@ -16,12 +16,10 @@ export interface ParsedListQuery<TDocument> {
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 
-// Escape special characters in a string for use in a regular expression
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Parses query parameters for filtering, sorting, and pagination into a Mongo query.
 export function parseListQuery<TDocument>(
   query: Record<string, unknown>,
   filterFields: FilterFieldConfig[],

@@ -3,7 +3,7 @@ import { IUserRepository, CreateUserInput, UpdateUserInput, UserQuery } from './
 import { UserDocument } from './user.model';
 
 export class UserService {
-  // Interchangeable between MongoUserRepository and CachedUserRepository
+    // Interchangeable between MongoUserRepository and CachedUserRepository
   constructor(private readonly userRepository: IUserRepository) {}
 
   list(query: UserQuery): Promise<Paginated<UserDocument>> {

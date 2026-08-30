@@ -1,6 +1,5 @@
 import { BcryptHasher } from '../../src/infra/hash/BcryptHasher';
 
-// Low cost factor: these tests exercise behaviour, not key-stretching strength.
 const hasher = new BcryptHasher(4);
 
 describe('BcryptHasher', () => {

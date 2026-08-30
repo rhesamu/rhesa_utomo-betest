@@ -45,7 +45,6 @@ export function createApp(deps: AppDeps): Express {
     }),
   );
 
-  // Must precede the routers so cache-backed reads run inside its ALS scope.
   app.use(cacheHeader());
 
   app.use('/health', healthCheckRouter(readinessChecks));

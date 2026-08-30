@@ -48,7 +48,6 @@ describe('parseListQuery', () => {
     });
 
     it('falls back to the default when the field is not whitelisted', () => {
-      // Prevents sorting by unindexed fields via the query string.
       const { sort } = parseListQuery({ sort: 'password' }, FILTERS, SORTABLE);
       expect(sort).toEqual({ createdAt: -1 });
     });

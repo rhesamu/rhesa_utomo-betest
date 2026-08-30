@@ -11,8 +11,6 @@ const envSchema = z.object({
   REDIS_URL: z.string().min(1).optional(),
 
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
-  // Validated against the `ms` duration format so the SignOptions cast in the
-  // composition root is backed by a real runtime guarantee, not an assumption.
   JWT_EXPIRES_IN: z
     .string()
     .regex(

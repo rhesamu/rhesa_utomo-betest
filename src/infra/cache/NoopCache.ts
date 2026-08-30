@@ -7,11 +7,7 @@ export class NoopCache implements ICache {
     return null;
   }
 
-  async set<T>(_key: string, _value: T, _ttlSeconds?: number): Promise<void> {
-    // empty
-  }
+  async set<T>(_key: string, _value: T, _ttlSeconds?: number): Promise<void> {}
 
-  async del(..._keys: string[]): Promise<void> {
-    // empty
-  }
+  async del(..._keys: string[]): Promise<void> {}
 }

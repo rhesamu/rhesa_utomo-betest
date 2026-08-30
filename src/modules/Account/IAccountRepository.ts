@@ -17,14 +17,13 @@ export interface StaleAccountQuery {
 }
 
 export interface CreateAccountInput {
-  accountId: string;
   userName: string;
   password: string;
   userId: string;
   lastLoginDateTime?: Date;
 }
 
-export type UpdateAccountInput = Partial<Omit<CreateAccountInput, 'accountId'>>;
+export type UpdateAccountInput = Partial<CreateAccountInput>;
 
 export interface IAccountRepository {
   findAll(query: AccountQuery): Promise<Paginated<AccountDocument>>;

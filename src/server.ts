@@ -16,6 +16,7 @@ import { AuthService } from './modules/Auth/auth.service';
 import { ICache } from './infra/cache/ICache';
 import { RedisCache } from './infra/cache/RedisCache';
 import { NoopCache } from './infra/cache/NoopCache';
+import { createRedisClient } from './infra/cache/createRedisClient';
 import { CachedUserRepository } from './modules/User/CachedUserRepository';
 
 const logger = pino({
@@ -28,23 +29,6 @@ async function connectMongo(): Promise<void> {
     autoIndex: env.NODE_ENV !== 'production',
   });
   logger.info('Database connected');
-}
-
-function buildRedisClient(): Redis | undefined {
-  if (!env.REDIS_URL) return undefined;
-
-  // *.railway.internal resolves IPv6-only; every other host
-  // (docker-compose's bridge DNS, localhost) is IPv4-only.
-  const isRailwayInternal = new URL(env.REDIS_URL).hostname.endsWith('.railway.internal');
-
-  const redis = new Redis(env.REDIS_URL, {
-    ...(isRailwayInternal ? { family: 6 } : {}),
-    maxRetriesPerRequest: 2,
-    enableOfflineQueue: false,
-    lazyConnect: true,
-  });
-  redis.on('error', (err) => logger.warn({ err }, 'Redis connection error'));
-  return redis;
 }
 
 function buildRedisReadinessCheck(redis: Redis): ReadinessCheck {
@@ -69,8 +53,7 @@ async function bootstrap(): Promise<void> {
     { name: 'mongo', check: async () => mongoose.connection.readyState === 1 },
   ];
 
-  // Cached User Repository setup if Redis is available, else fall back to a NoopCache.
-  const redis = buildRedisClient();
+  const redis = createRedisClient(env.REDIS_URL, logger);
   if (redis) readinessChecks.push(buildRedisReadinessCheck(redis));
 
   const cache: ICache = redis

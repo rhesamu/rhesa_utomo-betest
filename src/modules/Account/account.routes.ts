@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { AccountController } from './account.controller';
 import { AccountService } from './account.service';
 import { validate } from '../../middlewares/validate';
-import { authenticate, authorize } from '../../middlewares/authenticate';
+import { authenticate } from '../../middlewares/authenticate';
 import { ITokenService } from '../../infra/jwt/ITokenService';
 import {
   accountIdParamSchema,
@@ -19,14 +19,12 @@ export function accountRouter(accountService: AccountService, tokenService: ITok
   router.get(
     '/',
     authenticate(tokenService),
-    authorize('admin'),
     validate({ query: listAccountQuerySchema }),
     controller.list,
   );
   router.get(
     '/stale',
     authenticate(tokenService),
-    authorize('admin'),
     validate({ query: staleAccountQuerySchema }),
     controller.listStale,
   );

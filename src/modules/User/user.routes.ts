@@ -17,14 +17,9 @@ export function userRouter(userService: UserService, tokenService: ITokenService
 
   router.use(authenticate(tokenService));
 
-  router.get('/', authorize('admin'), validate({ query: listUserQuerySchema }), controller.list);
-  router.get('/by-account/:accountNumber', authorize('admin'), controller.getByAccountNumber);
-  router.get(
-    '/by-registration/:registrationNumber',
-    authorize('admin'),
-    authorize('admin'),
-    controller.getByRegistrationNumber,
-  );
+  router.get('/', validate({ query: listUserQuerySchema }), controller.list);
+  router.get('/by-account/:accountNumber', controller.getByAccountNumber);
+  router.get('/by-registration/:registrationNumber', controller.getByRegistrationNumber);
   router.get('/:userId', validate({ params: userIdParamSchema }), controller.getByUserId);
   router.post('/', validate({ body: createUserSchema }), controller.create);
   router.put(
